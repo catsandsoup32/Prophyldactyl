@@ -1,0 +1,73 @@
+import numpy as np
+
+
+def fen_str_to_array(fen_string):
+    field_array = fen_string.split(" ")
+    piece_placement = field_array.pop(0).split('/')
+
+    # Fill in spaces, ex. [R, 4, b, 2] becomes [R, 0, 0, 0, 0, b, 0, 0]
+    for rank in piece_placement:
+        rank = list(rank)
+        print(rank)
+        for idx, tile in enumerate(rank):
+            if tile.isdigit():
+                num_spaces = int(tile)
+                tile = None
+                for i in range(num_spaces-1):
+                    rank.insert(idx, None)
+            
+    return field_array, piece_placement 
+
+test1, test2 = fen_str_to_array("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
+print(test2)
+    
+
+def fen_to_halfKP(fen_string):
+    # Need to create two tuples (our_king_square, piece_square, piece_type, piece_color)
+    # If one wanted to, it would technically be more efficient to cache these tensors rather than perform this transform on-the-fly
+
+    white_tensor = black_tensor = np.zeros((64, 64, 5, 1), dtype=int)  # Using index notation of a1 = 0, ..., h8 = 63 
+    field_array, piece_placement = fen_str_to_array(fen_string)
+    
+
+
+
+    '''
+    for rank in piece_placement
+        for idx, grid in rank:
+            if (grid.isdigit()):
+                num_spaces = int(grid)
+                rank[idx].insert()
+
+
+    # Set kings 
+
+
+    for idx, rows in piece_placement:
+        if ('K') in rows:
+            row_offset = (7-idx) * 8 # FEN follows big-endian order in the rows, from rank 8 to rank 1
+            col_offset = 0 
+            for letter in piece_placement[idx]:
+                if letter == 'K':
+                    break
+                col_offset += letter if letter.isdigit() else 1
+        
+            w_king_square = row_offset + col_offset
+            white_tensor[w_king_square, 0, 0, 0] = 1
+
+        elif ('k') in rows:
+            row_offset = (7-idx) * 8
+            col_offset = 0
+            for letter in piece_placement[idx]:
+                if letter == 'k':
+                    break
+                col_offset += letter if letter.isdigit() else 1
+        
+            b_king_square = row_offset + col_offset
+            black_tensor[b_king_square, 0, 0, 0] = 1
+
+    '''
+    # Set other pieces
+
+
+    
