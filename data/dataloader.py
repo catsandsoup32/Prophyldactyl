@@ -2,7 +2,7 @@ from peewee import *
 import base64
 from torch.utils.data import Dataset
 
-db = SqliteDatabase('2021-07-31-lichess-evaluations-37MM.db')
+db = SqliteDatabase('data/2021-07-31-lichess-evaluations-37MM.db')
 
 class Evaluations(Model):
   id = IntegerField()

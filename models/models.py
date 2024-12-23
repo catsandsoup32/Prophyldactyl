@@ -1,15 +1,17 @@
 import torch
 from torch import nn
 
+from util import fen_to_halfKP
+
 # Original network from StockFish docs 
-class NNUE(nn.Module):
+class HalfKP_NNUE(nn.Module):
     def __init__(self):
-        super(NNUE, self).__init__()
-        NUM_FEATURES = 40960 # 64*64*5*2, given there are 5 pieces except for king, and two perspectives
+        super(HalfKP_NNUE, self).__init__()
+        NUM_FEATURES = 40960 # 64*64*5*2, given there are 5 pieces except for king, and two piece colors
         M, N, K = 4, 8, 1
 
-        self.ft = nn.Linear(NUM_FEATURES, M)
-        self.l1 = nn.Linear(2 * M, N)
+        self.ft = nn.Linear(NUM_FEATURES, M) 
+        self.l1 = nn.Linear(2 * M, N) 
         self.l2 = nn.Linear(N, K)
 
     # The inputs are a whole batch!
@@ -18,6 +20,7 @@ class NNUE(nn.Module):
     def forward(self, white_features, black_features, stm):
         w = self.ft(white_features) # white's perspective
         b = self.ft(black_features) # black's perspective
+        stm = stm.unsqueeze(1)
 
         # Remember that we order the accumulators for 2 perspectives based on who is to move.
         # So we blend two possible orderings by interpolating between `stm` and `1-stm` tensors.

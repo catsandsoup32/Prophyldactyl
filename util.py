@@ -1,4 +1,5 @@
 import numpy as np
+from torch import tensor
 
 def fen_str_to_array(fen_string):
     field_array = fen_string.split(" ")
@@ -32,11 +33,11 @@ def fen_to_halfKP(fen_string):
     # If one wanted to, it would technically be more efficient to cache these tensors rather than perform this transform on-the-fly
 
     # Using index notation of a1 = 0, ..., h8 = 63 for white and a8 = 0, ..., h1 = 63 for black
-    # 1 represents each side's own piece color and -1 for opposing piece color
-    white_tensor = black_tensor = np.zeros((64, 64, 5, 1), dtype=int)  
+    # See https://github.com/official-stockfish/nnue-pytorch/blob/master/docs/nnue.md HalfKP section for a more thorough explanation
+    white_tensor = black_tensor = np.zeros((64, 64, 5, 2), dtype=np.float32)  
     field_array, piece_placement, w_king_rank, b_king_rank = fen_str_to_array(fen_string)
     
-    # Find kings 
+    # Find king squares
     for idx, tile in enumerate(piece_placement[w_king_rank]):
         if tile == 'K':
             w_king_square = ((7-w_king_rank) * 8) + idx
@@ -46,17 +47,30 @@ def fen_to_halfKP(fen_string):
             b_king_square = (b_king_rank * 8) + idx
             break
 
-    # Find other pieces
-    # Ordered as [rook, knight, bishop, queen, pawn] in the array
+    # Find other pieces and assign placements to the array 
+    # This sparseness is what enables efficient updating
+    # Ordered as [rook, knight, bishop, queen, pawn] in the third dimension
+    # Index 0 is own side and index 1 is opposing side in the fourth dim
+    white_piece_dict = {'R': 0, 'N': 1, 'B': 2, 'Q': 3, 'P': 4}
+    black_piece_dict = {'r': 0, 'n': 1, 'b': 2, 'q': 3, 'p': 4}
     for i, rank in enumerate(piece_placement):
         for j, tile in enumerate(rank):
-            if (tile == 'R'):
-                white_tensor[w_king_square, ]
 
+            if tile in white_piece_dict:
+                piece_type = white_piece_dict[tile]
+                white_tensor[w_king_square, (7-i)*8 + j, piece_type, 0] = 1
+                black_tensor[b_king_square, i*8 + j, piece_type, 1] = 1
+
+            elif tile in black_piece_dict: 
+                piece_type = black_piece_dict[tile]
+                white_tensor[w_king_square, (7-i)*8 + j, piece_type, 1] = 1
+                black_tensor[b_king_square, i*8 + j, piece_type, 0] = 1
+
+    # Return if white is the side to move
+    stm = 1 if field_array[0] == 'w' else 0
+
+    return tensor(white_tensor), tensor(black_tensor), tensor(stm)
 
    
-
-fen_to_halfKP('4k2r/6r1/8/8/8/8/3R4/R3K3')
-
 
     
