@@ -3,6 +3,21 @@ from torch import nn
 
 from util import fen_to_halfKP
 
+
+class Simplest_NNUE(nn.Module):
+    def __init__(self):
+        super(Simplest_NNUE, self).__init__()
+        self.L1 = nn.Linear(768, 8)
+        self.L2 = nn.Linear(8, 32)
+        self.L3 = nn.Linear(32, 1)
+    
+    def forward(self, input):
+        feature_layer = torch.clamp(self.L1(input), 0.0, 1.0)
+        x_1 = torch.clamp(self.L2(feature_layer), 0.0, 1.0)
+        x_2 = self.L3(x_1)
+        return x_2
+
+
 # Original network from StockFish docs 
 class HalfKP_NNUE(nn.Module):
     def __init__(self):

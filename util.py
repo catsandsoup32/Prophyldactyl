@@ -1,6 +1,7 @@
 import numpy as np
 from torch import tensor
 
+
 def fen_str_to_array(fen_string):
     field_array = fen_string.split(" ")
     piece_placement = field_array.pop(0).split('/')
@@ -26,6 +27,29 @@ def fen_str_to_array(fen_string):
         new_piece_placement.append(new_rank)
            
     return field_array, np.array(new_piece_placement), white_king_rank, black_king_rank
+
+
+def fen_to_768(fen_string):
+    _, piece_placement, _, _ = fen_str_to_array(fen_string)
+    return_vec = np.zeros((64, 6, 2), dtype=np.float32)
+
+    white_piece_dict = {'R': 0, 'N': 1, 'B': 2, 'Q': 3, 'P': 4, 'K': 5}
+    black_piece_dict = {'r': 0, 'n': 1, 'b': 2, 'q': 3, 'p': 4, 'k': 5}
+
+    for i, rank in enumerate(piece_placement):
+        for j, tile in enumerate(rank):
+
+            if tile in white_piece_dict:
+                piece_type = white_piece_dict[tile]
+                return_vec[ (i*8 + j), piece_type, 0] = 1
+
+            elif tile in black_piece_dict: 
+                piece_type = black_piece_dict[tile]
+                return_vec[ (i*8 + j), piece_type, 1] = 1
+
+    return_vec = tensor(return_vec)
+    return_vec = return_vec.view(768)
+    return return_vec   
 
 
 def fen_to_halfKP(fen_string):
