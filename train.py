@@ -73,8 +73,6 @@ def Simple_NNUE_train(num_epochs, model, lr, experiment_num, save_name, save_fre
             torch.save(model.state_dict(), f"models/save_states/Exp{experiment_num}Epoch{epoch}{save_name}")
 
 
-
-
 def HalfKP_collate(batch):
     fens, evals = zip(*batch)
     w, b, stm = [], [], []
