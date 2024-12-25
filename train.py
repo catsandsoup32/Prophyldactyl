@@ -40,7 +40,7 @@ def Simple_NNUE_train(num_epochs, model, lr, experiment_num, save_name, save_fre
         counter = 0
         for inputs, evals in tqdm(train_loader, desc=f"Epoch {epoch}: training loop"):
             inputs, evals = inputs.to(device), evals.to(device)
-            scaled_evals = torch.sigmoid(evals / 5)
+            scaled_evals = torch.tanh(evals/5)
             outputs = model(inputs)
             loss = criterion(outputs.squeeze(1), scaled_evals)
             running_loss += loss
@@ -70,7 +70,7 @@ def Simple_NNUE_train(num_epochs, model, lr, experiment_num, save_name, save_fre
         val_losses.append(val_loss)
         print(f" -> Epoch {epoch} / Train Loss: {train_loss} / Val Loss: {val_loss} / Acc: {total_acc * 100}%")
         if (epoch % save_frequency == 0):
-            torch.save(model.state_dict(), f"Exp{experiment_num}Epoch{epoch}{save_name}")
+            torch.save(model.state_dict(), f"models/save_states/Exp{experiment_num}Epoch{epoch}{save_name}")
 
 
 
@@ -175,10 +175,10 @@ if __name__ == '__main__':
         Simple_NNUE_train(
             num_epochs = 50, 
             model = Simplest_NNUE(),
-            lr = 1e-4,
+            lr = 1e-5,
             experiment_num = 1,
             save_name = "Simple0", 
-            save_frequency=5
+            save_frequency=1
         )
 
 
